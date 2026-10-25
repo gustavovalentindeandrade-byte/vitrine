@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title id="page-title">Vitrine Oficial</title>
+  <style>
+    :root {
+      --primary: #d4af37;
+      --bg: #111111;
+      --card: #1c1c1c;
+      --text: #f5f5f5;
+      --muted: #aaaaaa;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', system-ui, sans-serif; }
+    body { background: var(--bg); color: var(--text); line-height: 1.6; padding-bottom: 80px; }
+    .banner-demo {
+      background: #25d366; color: #000; text-align: center;
+      padding: 8px 12px; font-size: 0.85rem; font-weight: 700;
+    }
+    header {
+      text-align: center; padding: 48px 20px 32px;
+      background: linear-gradient(180deg, rgba(255,255,255,0.05) 0%, transparent 100%);
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+    }
+    .badge {
+      display: inline-block; padding: 4px 12px; border-radius: 50px;
+      background: rgba(212, 175, 55, 0.15); color: var(--primary);
+      font-size: 0.8rem; font-weight: 600; text-transform: uppercase; margin-bottom: 12px;
+    }
+    h1 { font-size: 2rem; margin-bottom: 8px; color: #fff; }
+    .sub { color: var(--muted); font-size: 1rem; max-width: 480px; margin: 0 auto 24px; }
+    .btn-cta {
+      display: inline-flex; align-items: center; gap: 8px;
+      background: var(--primary); color: #000; font-weight: 700;
+      text-decoration: none; padding: 14px 28px; border-radius: 10px;
+      font-size: 1rem; box-shadow: 0 4px 15px rgba(0,0,0,0.4);
+      transition: transform 0.2s;
+    }
+    .btn-cta:hover { transform: scale(1.03); }
+    .container { max-width: 600px; margin: 0 auto; padding: 24px 16px; }
+    .section-title { font-size: 1.2rem; margin-bottom: 16px; border-left: 4px solid var(--primary); padding-left: 10px; }
+    .grid { display: grid; gap: 12px; margin-bottom: 32px; }
+    .card {
+      background: var(--card); padding: 16px; border-radius: 12px;
+      display: flex; justify-content: space-between; align-items: center;
+      border: 1px solid rgba(255,255,255,0.06);
+    }
+    .card h3 { font-size: 1rem; margin-bottom: 4px; }
+    .card p { font-size: 0.85rem; color: var(--muted); }
+    .tag-agenda {
+      background: rgba(255,255,255,0.08); color: var(--primary);
+      padding: 6px 12px; border-radius: 8px; font-size: 0.8rem; font-weight: 600;
+      text-decoration: none;
+    }
+    .info-box {
+      background: var(--card); padding: 18px; border-radius: 12px;
+      border: 1px solid rgba(255,255,255,0.06); margin-bottom: 24px;
+    }
+    .floating-wa {
+      position: fixed; bottom: 16px; left: 50%; transform: translateX(-50%);
+      width: calc(100% - 32px); max-width: 560px; background: #25d366; color: #000;
+      text-align: center; padding: 15px; border-radius: 12px; font-weight: 800;
+      text-decoration: none; box-shadow: 0 6px 20px rgba(0,0,0,0.5);
+    }
+  </style>
+</head>
+<body>
+
+  <div class="banner-demo">
+    ✨ Prévia Exclusiva Demonstrativa — Pronta para o Instagram e WhatsApp
+  </div>
+
+  <header>
+    <span class="badge" id="ramo-badge">Atendimento Premium</span>
+    <h1 id="nome-negocio">Seu Negócio</h1>
+    <p class="sub" id="descricao-negocio">Qualidade, atenção aos detalhes e agendamento rápido pelo WhatsApp.</p>
+    <a href="#" id="btn-topo" class="btn-cta" target="_blank">📲 Agendar Horário no WhatsApp</a>
+  </header>
+
+  <main class="container">
+    <h2 class="section-title">Nossos Principais Serviços</h2>
+    <div class="grid" id="lista-servicos"></div>
+
+    <h2 class="section-title">Localização e Atendimento</h2>
+    <div class="info-box">
+      <p>📍 <strong>Região / Endereço:</strong> <span id="local-negocio">Consulte nossa localização</span></p>
+      <p style="margin-top:8px;">⏰ <strong>Atendimento:</strong> Com hora marcada e encaixes via WhatsApp.</p>
+    </div>
+  </main>
+
+  <a href="#" id="btn-flutuante" class="floating-wa" target="_blank">
+    💬 Falar Agora no WhatsApp
+  </a>
+
+  <script>
+    const params = new URLSearchParams(window.location.search);
+    const nome = params.get('nome') || 'Studio & Estilo';
+    const ramo = (params.get('ramo') || 'barbearia').toLowerCase();
+    const bairro = params.get('bairro') || 'Centro';
+    const zap = (params.get('zap') || '5521999999999').replace(/\D/g, '');
+    const servicosCustom = params.get('servicos');
+
+    // Temas automáticos por nicho
+    const temas = {
+      barbearia: {
+        cor: '#d4af37', bg: '#111111', card: '#1c1c1c', badge: '💈 Barbearia & Estilo',
+        desc: `Referência em cortes masculinos, barba e visagismo em ${bairro}.`,
+        servicos: ['Corte Degradê / Social', 'Barba Completa com Toalha Quente', 'Combo Corte + Barba + Sobrancelha']
+      },
+      salao: {
+        cor: '#e88d96', bg: '#1a1215', card: '#261b1f', badge: '✨ Beleza & Estética',
+        desc: `Realçando sua beleza com atendimento exclusivo em ${bairro}.`,
+        servicos: ['Mechas, Luzes e Colorimetria', 'Hidratação Profunda & Escova', 'Alinhamento / Progressiva Sem Formol']
+      },
+      oficina: {
+        cor: '#ff6b00', bg: '#0f1318', card: '#1a2028', badge: '🔧 Mecânica & Revisão',
+        desc: `Diagnóstico preciso, transparência e revisão de confiança em ${bairro}.`,
+        servicos: ['Revisão Preventiva Completa', 'Troca de Óleo, Filtros e Freios', 'Diagnóstico Elétrico e Injeção']
+      }
+    };
+
+    const config = temas[ramo] || temas.barbearia;
+    document.documentElement.style.setProperty('--primary', config.cor);
+    document.documentElement.style.setProperty('--bg', config.bg);
+    document.documentElement.style.setProperty('--card', config.card);
+
+    document.getElementById('page-title').textContent = `${nome} | Página Oficial`;
+    document.getElementById('ramo-badge').textContent = config.badge;
+    document.getElementById('nome-negocio').textContent = nome;
+    document.getElementById('descricao-negocio').textContent = config.desc;
+    document.getElementById('local-negocio').textContent = bairro;
+
+    const listaServicos = servicosCustom ? servicosCustom.split(',') : config.servicos;
+    const containerServicos = document.getElementById('lista-servicos');
+
+    listaServicos.forEach(s => {
+      const nomeServico = s.trim();
+      const linkServico = `https://wa.me/${zap}?text=${encodeURIComponent(`Olá! Vi a página da ${nome} e gostaria de agendar: ${nomeServico}`)}`;
+      containerServicos.innerHTML += `
+        <div class="card">
+          <div>
+            <h3>${nomeServico}</h3>
+            <p>Toque ao lado para consultar valores e horários</p>
+          </div>
+          <a href="${linkServico}" target="_blank" class="tag-agenda">Agendar →</a>
+        </div>
+      `;
+    });
+
+    const linkGeral = `https://wa.me/${zap}?text=${encodeURIComponent(`Olá! Vim pela página oficial da ${nome} e quero agendar um horário.`)}`;
+    document.getElementById('btn-topo').href = linkGeral;
+    document.getElementById('btn-flutuante').href = linkGeral;
+  </script>
+</body>
+</html>
