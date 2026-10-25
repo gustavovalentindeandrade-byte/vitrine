@@ -51,7 +51,7 @@
     .tag-agenda {
       background: rgba(255,255,255,0.08); color: var(--primary);
       padding: 6px 12px; border-radius: 8px; font-size: 0.8rem; font-weight: 600;
-      text-decoration: none;
+      text-decoration: none; white-space: nowrap;
     }
     .info-box {
       background: var(--card); padding: 18px; border-radius: 12px;
@@ -96,26 +96,29 @@
   <script>
     const params = new URLSearchParams(window.location.search);
     const nome = params.get('nome') || 'Studio & Estilo';
-    const ramo = (params.get('ramo') || 'barbearia').toLowerCase();
+    const ramoBruto = (params.get('ramo') || 'barbearia').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
     const bairro = params.get('bairro') || 'Centro';
     const zap = (params.get('zap') || '5521999999999').replace(/\D/g, '');
     const servicosCustom = params.get('servicos');
 
-    // Temas automáticos por nicho
+    let ramo = 'barbearia';
+    if (ramoBruto.includes('salao') || ramoBruto.includes('beleza') || ramoBruto.includes('estetica')) ramo = 'salao';
+    if (ramoBruto.includes('oficina') || ramoBruto.includes('mecanica') || ramoBruto.includes('moto') || ramoBruto.includes('auto')) ramo = 'oficina';
+
     const temas = {
       barbearia: {
         cor: '#d4af37', bg: '#111111', card: '#1c1c1c', badge: '💈 Barbearia & Estilo',
-        desc: `Referência em cortes masculinos, barba e visagismo em ${bairro}.`,
+        desc: 'Referência em cortes masculinos, barba e visagismo em ' + bairro + '.',
         servicos: ['Corte Degradê / Social', 'Barba Completa com Toalha Quente', 'Combo Corte + Barba + Sobrancelha']
       },
       salao: {
         cor: '#e88d96', bg: '#1a1215', card: '#261b1f', badge: '✨ Beleza & Estética',
-        desc: `Realçando sua beleza com atendimento exclusivo em ${bairro}.`,
+        desc: 'Realçando sua beleza com atendimento exclusivo em ' + bairro + '.',
         servicos: ['Mechas, Luzes e Colorimetria', 'Hidratação Profunda & Escova', 'Alinhamento / Progressiva Sem Formol']
       },
       oficina: {
         cor: '#ff6b00', bg: '#0f1318', card: '#1a2028', badge: '🔧 Mecânica & Revisão',
-        desc: `Diagnóstico preciso, transparência e revisão de confiança em ${bairro}.`,
+        desc: 'Diagnóstico preciso, transparência e revisão de confiança em ' + bairro + '.',
         servicos: ['Revisão Preventiva Completa', 'Troca de Óleo, Filtros e Freios', 'Diagnóstico Elétrico e Injeção']
       }
     };
@@ -125,7 +128,7 @@
     document.documentElement.style.setProperty('--bg', config.bg);
     document.documentElement.style.setProperty('--card', config.card);
 
-    document.getElementById('page-title').textContent = `${nome} | Página Oficial`;
+    document.getElementById('page-title').textContent = nome + ' | Página Oficial';
     document.getElementById('ramo-badge').textContent = config.badge;
     document.getElementById('nome-negocio').textContent = nome;
     document.getElementById('descricao-negocio').textContent = config.desc;
@@ -134,21 +137,21 @@
     const listaServicos = servicosCustom ? servicosCustom.split(',') : config.servicos;
     const containerServicos = document.getElementById('lista-servicos');
 
-    listaServicos.forEach(s => {
+    listaServicos.forEach(function(s) {
       const nomeServico = s.trim();
-      const linkServico = `https://wa.me/${zap}?text=${encodeURIComponent(`Olá! Vi a página da ${nome} e gostaria de agendar: ${nomeServico}`)}`;
-      containerServicos.innerHTML += `
-        <div class="card">
-          <div>
-            <h3>${nomeServico}</h3>
-            <p>Toque ao lado para consultar valores e horários</p>
-          </div>
-          <a href="${linkServico}" target="_blank" class="tag-agenda">Agendar →</a>
-        </div>
-      `;
+      if (!nomeServico) return;
+      const linkServico = 'https://wa.me/' + zap + '?text=' + encodeURIComponent('Olá! Vi a página da ' + nome + ' e gostaria de agendar: ' + nomeServico);
+      containerServicos.innerHTML +=
+        '<div class="card">' +
+          '<div>' +
+            '<h3>' + nomeServico + '</h3>' +
+            '<p>Toque ao lado para consultar valores e horários</p>' +
+          '</div>' +
+          '<a href="' + linkServico + '" target="_blank" class="tag-agenda">Agendar →</a>' +
+        '</div>';
     });
 
-    const linkGeral = `https://wa.me/${zap}?text=${encodeURIComponent(`Olá! Vim pela página oficial da ${nome} e quero agendar um horário.`)}`;
+    const linkGeral = 'https://wa.me/' + zap + '?text=' + encodeURIComponent('Olá! Vim pela página oficial da ' + nome + ' e quero agendar um horário.');
     document.getElementById('btn-topo').href = linkGeral;
     document.getElementById('btn-flutuante').href = linkGeral;
   </script>
