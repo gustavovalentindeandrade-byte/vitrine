@@ -10,7 +10,11 @@
       --bg: #111111;
       --card: #1c1c1c;
       --text: #f5f5f5;
+      --text-forte: #ffffff;
       --muted: #aaaaaa;
+      --borda: rgba(255,255,255,0.08);
+      --tag-bg: rgba(255,255,255,0.08);
+      --btn-texto: #000000;
     }
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', system-ui, sans-serif; }
     body { background: var(--bg); color: var(--text); line-height: 1.6; padding-bottom: 80px; }
@@ -20,48 +24,48 @@
     }
     header {
       text-align: center; padding: 48px 20px 32px;
-      background: linear-gradient(180deg, rgba(255,255,255,0.05) 0%, transparent 100%);
-      border-bottom: 1px solid rgba(255,255,255,0.08);
+      background: linear-gradient(180deg, rgba(0,0,0,0.03) 0%, transparent 100%);
+      border-bottom: 1px solid var(--borda);
     }
     .badge {
       display: inline-block; padding: 4px 12px; border-radius: 50px;
-      background: rgba(212, 175, 55, 0.15); color: var(--primary);
-      font-size: 0.8rem; font-weight: 600; text-transform: uppercase; margin-bottom: 12px;
+      background: var(--primary); color: var(--btn-texto);
+      font-size: 0.8rem; font-weight: 700; text-transform: uppercase; margin-bottom: 12px;
     }
-    h1 { font-size: 2rem; margin-bottom: 8px; color: #fff; }
+    h1 { font-size: 2rem; margin-bottom: 8px; color: var(--text-forte); }
     .sub { color: var(--muted); font-size: 1rem; max-width: 480px; margin: 0 auto 24px; }
     .btn-cta {
       display: inline-flex; align-items: center; gap: 8px;
-      background: var(--primary); color: #000; font-weight: 700;
+      background: var(--primary); color: var(--btn-texto); font-weight: 700;
       text-decoration: none; padding: 14px 28px; border-radius: 10px;
-      font-size: 1rem; box-shadow: 0 4px 15px rgba(0,0,0,0.4);
+      font-size: 1rem; box-shadow: 0 4px 15px rgba(0,0,0,0.25);
       transition: transform 0.2s;
     }
     .btn-cta:hover { transform: scale(1.03); }
     .container { max-width: 600px; margin: 0 auto; padding: 24px 16px; }
-    .section-title { font-size: 1.2rem; margin-bottom: 16px; border-left: 4px solid var(--primary); padding-left: 10px; }
+    .section-title { font-size: 1.2rem; margin-bottom: 16px; border-left: 4px solid var(--primary); padding-left: 10px; color: var(--text-forte); }
     .grid { display: grid; gap: 12px; margin-bottom: 32px; }
     .card {
       background: var(--card); padding: 16px; border-radius: 12px;
       display: flex; justify-content: space-between; align-items: center;
-      border: 1px solid rgba(255,255,255,0.06);
+      border: 1px solid var(--borda);
     }
-    .card h3 { font-size: 1rem; margin-bottom: 4px; }
+    .card h3 { font-size: 1rem; margin-bottom: 4px; color: var(--text-forte); }
     .card p { font-size: 0.85rem; color: var(--muted); }
     .tag-agenda {
-      background: rgba(255,255,255,0.08); color: var(--primary);
-      padding: 6px 12px; border-radius: 8px; font-size: 0.8rem; font-weight: 600;
+      background: var(--tag-bg); color: var(--primary);
+      padding: 6px 12px; border-radius: 8px; font-size: 0.8rem; font-weight: 700;
       text-decoration: none; white-space: nowrap;
     }
     .info-box {
       background: var(--card); padding: 18px; border-radius: 12px;
-      border: 1px solid rgba(255,255,255,0.06); margin-bottom: 24px;
+      border: 1px solid var(--borda); margin-bottom: 24px;
     }
     .floating-wa {
       position: fixed; bottom: 16px; left: 50%; transform: translateX(-50%);
       width: calc(100% - 32px); max-width: 560px; background: #25d366; color: #000;
       text-align: center; padding: 15px; border-radius: 12px; font-weight: 800;
-      text-decoration: none; box-shadow: 0 6px 20px rgba(0,0,0,0.5);
+      text-decoration: none; box-shadow: 0 6px 20px rgba(0,0,0,0.25);
     }
   </style>
 </head>
@@ -94,10 +98,20 @@
   </a>
 
   <script>
+    // Escapa texto vindo da URL antes de inserir no HTML (evita injeção de tags)
+    function esc(texto) {
+      return String(texto).replace(/[&<>"']/g, function(c) {
+        return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+      });
+    }
+
     const params = new URLSearchParams(window.location.search);
     const nome = params.get('nome') || 'Studio & Estilo';
     const ramoBruto = (params.get('ramo') || 'barbearia').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
-    const bairro = params.get('bairro') || 'Centro';
+    const bairroParam = (params.get('bairro') || '').trim();
+    // Ignora o texto padrão "Sua região" quando o bairro não foi informado
+    const temBairro = bairroParam !== '' && !/sua\s+regi/i.test(bairroParam);
+    const bairro = temBairro ? bairroParam : '';
     const zap = (params.get('zap') || '5521999999999').replace(/\D/g, '');
     const servicosCustom = params.get('servicos');
 
@@ -105,34 +119,52 @@
     if (ramoBruto.includes('salao') || ramoBruto.includes('beleza') || ramoBruto.includes('estetica')) ramo = 'salao';
     if (ramoBruto.includes('oficina') || ramoBruto.includes('mecanica') || ramoBruto.includes('moto') || ramoBruto.includes('auto')) ramo = 'oficina';
 
+    const local = temBairro ? ' em ' + bairro : '';
+
     const temas = {
       barbearia: {
-        cor: '#d4af37', bg: '#111111', card: '#1c1c1c', badge: '💈 Barbearia & Estilo',
-        desc: 'Referência em cortes masculinos, barba e visagismo em ' + bairro + '.',
+        cor: '#d4af37', bg: '#111111', card: '#1c1c1c',
+        texto: '#f5f5f5', textoForte: '#ffffff', muted: '#aaaaaa',
+        borda: 'rgba(255,255,255,0.08)', tagBg: 'rgba(255,255,255,0.08)', btnTexto: '#000000',
+        badge: '💈 Barbearia & Estilo',
+        desc: 'Referência em cortes masculinos, barba e visagismo' + local + '.',
         servicos: ['Corte Degradê / Social', 'Barba Completa com Toalha Quente', 'Combo Corte + Barba + Sobrancelha']
       },
       salao: {
-        cor: '#e88d96', bg: '#1a1215', card: '#261b1f', badge: '✨ Beleza & Estética',
-        desc: 'Realçando sua beleza com atendimento exclusivo em ' + bairro + '.',
+        cor: '#d63f7f', bg: '#ffffff', card: '#fdeef3',
+        texto: '#3a2328', textoForte: '#2b1418', muted: '#7a5a61',
+        borda: 'rgba(214,63,127,0.18)', tagBg: 'rgba(214,63,127,0.12)', btnTexto: '#ffffff',
+        badge: '✨ Beleza & Estética',
+        desc: 'Realçando sua beleza com atendimento exclusivo' + local + '.',
         servicos: ['Mechas, Luzes e Colorimetria', 'Hidratação Profunda & Escova', 'Alinhamento / Progressiva Sem Formol']
       },
       oficina: {
-        cor: '#ff6b00', bg: '#0f1318', card: '#1a2028', badge: '🔧 Mecânica & Revisão',
-        desc: 'Diagnóstico preciso, transparência e revisão de confiança em ' + bairro + '.',
+        cor: '#ff6b00', bg: '#0f1318', card: '#1a2028',
+        texto: '#f5f5f5', textoForte: '#ffffff', muted: '#aaaaaa',
+        borda: 'rgba(255,255,255,0.08)', tagBg: 'rgba(255,255,255,0.08)', btnTexto: '#000000',
+        badge: '🔧 Mecânica & Revisão',
+        desc: 'Diagnóstico preciso, transparência e revisão de confiança' + local + '.',
         servicos: ['Revisão Preventiva Completa', 'Troca de Óleo, Filtros e Freios', 'Diagnóstico Elétrico e Injeção']
       }
     };
 
     const config = temas[ramo] || temas.barbearia;
-    document.documentElement.style.setProperty('--primary', config.cor);
-    document.documentElement.style.setProperty('--bg', config.bg);
-    document.documentElement.style.setProperty('--card', config.card);
+    const estilo = document.documentElement.style;
+    estilo.setProperty('--primary', config.cor);
+    estilo.setProperty('--bg', config.bg);
+    estilo.setProperty('--card', config.card);
+    estilo.setProperty('--text', config.texto);
+    estilo.setProperty('--text-forte', config.textoForte);
+    estilo.setProperty('--muted', config.muted);
+    estilo.setProperty('--borda', config.borda);
+    estilo.setProperty('--tag-bg', config.tagBg);
+    estilo.setProperty('--btn-texto', config.btnTexto);
 
     document.getElementById('page-title').textContent = nome + ' | Página Oficial';
     document.getElementById('ramo-badge').textContent = config.badge;
     document.getElementById('nome-negocio').textContent = nome;
     document.getElementById('descricao-negocio').textContent = config.desc;
-    document.getElementById('local-negocio').textContent = bairro;
+    document.getElementById('local-negocio').textContent = temBairro ? bairro : 'Consulte nossa localização';
 
     const listaServicos = servicosCustom ? servicosCustom.split(',') : config.servicos;
     const containerServicos = document.getElementById('lista-servicos');
@@ -141,14 +173,15 @@
       const nomeServico = s.trim();
       if (!nomeServico) return;
       const linkServico = 'https://wa.me/' + zap + '?text=' + encodeURIComponent('Olá! Vi a página da ' + nome + ' e gostaria de agendar: ' + nomeServico);
-      containerServicos.innerHTML +=
+      containerServicos.insertAdjacentHTML('beforeend',
         '<div class="card">' +
           '<div>' +
-            '<h3>' + nomeServico + '</h3>' +
+            '<h3>' + esc(nomeServico) + '</h3>' +
             '<p>Toque ao lado para consultar valores e horários</p>' +
           '</div>' +
-          '<a href="' + linkServico + '" target="_blank" class="tag-agenda">Agendar →</a>' +
-        '</div>';
+          '<a href="' + esc(linkServico) + '" target="_blank" class="tag-agenda">Agendar →</a>' +
+        '</div>'
+      );
     });
 
     const linkGeral = 'https://wa.me/' + zap + '?text=' + encodeURIComponent('Olá! Vim pela página oficial da ' + nome + ' e quero agendar um horário.');
